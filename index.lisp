@@ -13,7 +13,7 @@
 (defun main ()
 	;; Print user greeting
 	(terpri)
-	(princ (concatenate username "@" hostname "$: "))
+	(princ (concatenate 'string username "@" hostname "$: "))
 
 	;; Read table index
 	(setq query (read-line))
@@ -21,7 +21,9 @@
 	;; Parse user command
 	(setq command (parse-command query))
 	;; Execute user's command
-	(execute-command command query))
+	(execute-command command query)
+	;; Call main again
+	(main))
 
 (main)
 

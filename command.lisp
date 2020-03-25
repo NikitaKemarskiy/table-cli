@@ -39,7 +39,8 @@
 			(setq
 				table-name (get-params-string query)
 				table-path (concatenate 'string table-base-path table-name)
-				table (simple-table:read-csv table-path)
+				;table (simple-table:read-csv table-path)
+				table (simple-table:read-csv "map_zal-skl9.csv" t)
 				#| input-stream (open table-path)
 				table-data (read-file-by-lines input-stream)
 				table (parse-table table-data) |#)

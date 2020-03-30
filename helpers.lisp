@@ -2,14 +2,19 @@
 	(setq match (mismatch str2 str1 :from-end t))
 	(or (not match) (= 0 match)))
 
-(defun split-str (string &optional (separator " "))
-  (split-str-1 string separator))
-
-(defun split-str-1 (string &optional (separator " ") (r nil))
-  (let ((n (position separator string
-		     :from-end t
-		     :test #'(lambda (x y)
-			       (find y x :test #'string=)))))
-    (if n
-	(split-str-1 (subseq string 0 n) separator (cons (subseq string (1+ n)) r))
-      (cons string r))))
+(defun split-row (row separator quote-char &optional (result '()) (index 0))
+	(setq
+		column-end-index
+			(cond
+				((= index (length row)) nil)
+				(t (position separator row :test #'equal :start index)))
+		column (subseq row index column-end-index))
+	(cond
+		(column-end-index
+			(split-row
+				row
+				separator
+				quote-char
+				(append result (list column))
+				(+ column-end-index 1)))
+		(t result)))

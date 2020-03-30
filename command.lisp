@@ -1,10 +1,3 @@
-;;; ASDF build system
-(require 'asdf)
-
-;;; Third-party lib for parsing .csv .tsv tables
-(load "libs/cl-simple-table/cl-simple-table.asd")
-(asdf:load-system 'cl-simple-table)
-
 ;;; Require modules
 (load "files.lisp")
 (load "table.lisp")
@@ -39,11 +32,9 @@
 			(setq
 				table-name (get-params-string query)
 				table-path (concatenate 'string table-base-path table-name)
-				;table (simple-table:read-csv table-path)
-				table (simple-table:read-csv "map_zal-skl9.csv" t)
-				#| input-stream (open table-path)
+				input-stream (open table-path)
 				table-data (read-file-by-lines input-stream)
-				table (parse-table table-data) |#)
+				table (parse-table table-data table-name))
 			(print table)
 			#| (pretty-table-print table) |#)
 		((string= command "exit") (exit))

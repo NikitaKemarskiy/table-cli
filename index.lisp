@@ -1,7 +1,6 @@
 ;;;; Variant 13
 
 ;;; Require modules
-(load "libs/asdf/asdf.lisp")
 (load "command.lisp")
 
 ;;; Variables
@@ -18,13 +17,13 @@
 	;; Read table index
 	(setq query (read-line))
 	(clear-input)
+
+	;; FOR TEST
+	(setq query "load(\"map_zal-skl9.csv\")")
+	
 	;; Parse user command
 	(setq command (parse-command query))
 	;; Execute user's command
-	(execute-command command query)
-	;; Call main again
-	(main))
+	(execute-command command query))
 
 (main)
-
-;; load("map_zal-skl9.csv")

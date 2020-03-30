@@ -35,6 +35,7 @@
 				input-stream (open table-path)
 				table-data (read-file-by-lines input-stream)
 				table (parse-table table-data table-name))
+			#| (print (get-closing-quote-char-index "\"kinoteatr \"\"druzhba\"\"\"" #\" 0)) |#
 			(print table)
 			#| (pretty-table-print table) |#)
 		((string= command "exit") (exit))

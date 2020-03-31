@@ -1,6 +1,7 @@
 ;;; Require modules
 (load "files.lisp")
 (load "table.lisp")
+(load "queries.lisp")
 (load "helpers.lisp")
 
 ;;; Tables pathes
@@ -30,13 +31,19 @@
 	(cond
 		((string= command "load")
 			(setq
+				;; Table name
 				table-name (get-params-string query)
+				;; Table path
 				table-path (concatenate 'string table-base-path table-name)
+				;; Table input stream
 				input-stream (open table-path)
+				;; Table data (list of rows)
 				table-data (read-file-by-lines input-stream)
-				table (parse-table table-data table-name))
-			#| (print (get-closing-quote-char-index "\"kinoteatr \"\"druzhba\"\"\"" #\" 0)) |#
-			(print table)
+				;; Table parsed (list of rows, rows are lists of cells)
+				table-parsed (parse-table table-data table-name)
+				#| ;; Table resulted
+				table-result (select table-parsed) |#)
+			(print table-parsed)
 			#| (pretty-table-print table) |#)
 		((string= command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

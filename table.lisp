@@ -8,15 +8,23 @@
 
 (defun parse-table-separator (table-data separator quote-char)
 "Parse table with passed separator and qoute character."
-	(setq table-parsed (mapcar
-		#'(lambda (row) (split-row row separator quote-char))
-		table-data))
-	(cons
+	(setq
+		table-parsed-by-rows
+			(mapcar
+				#'(lambda (row) (split-row row separator quote-char))
+				table-data)
+		table-parsed
+			(calculate-columns-lengths
+				(transpose-table
+					table-parsed-by-rows)))
+	table-parsed
+	#| (cons
 		(get-first-row table-parsed)
-		(cdr table-parsed)))
+		(cdr table-parsed)) |#)
 
-(defun pretty-table-print (table)
+(defun pretty-table-print (table-parsed)
 "Pretty table output to stdout."
+	(setq first-row (car table-parsed))
 	(mapcar
 		#'(lambda (row)
 			(mapcar
@@ -24,7 +32,7 @@
 					(format t "~15A " val))
 				row)
 			(format t "~C" #\linefeed))
-		table))
+		(cdr table-parsed)))
 
 (defun split-row (row separator quote-char &optional (result '()) (column-start-index 0))
 "Splits row into list of columns values
@@ -91,26 +99,25 @@ will be replaced with only one."
 					(+ quote-char-index 1)))
 		(t quote-char-index)))
 
-(defun get-first-row (table-parsed)
+(defun calculate-columns-lengths (table-parsed)
 	(setq
-		max-column-lengths (get-max-column-lengths (cdr table-parsed)))
-	(get-cons-list
-		(car table-parsed)
-		max-column-lengths))
+		max-column-lengths (get-max-column-lengths table-parsed))
+	(mapcar
+		#'(lambda (item lst)
+			(cons item lst))
+		max-column-lengths
+		table-parsed))
 
-(defun get-max-column-lengths (rows &optional (lengths '()))
+(defun get-max-column-lengths (columns)
 	(setq
-		row (car rows)
+		column (car columns)
 		column-lengths
+
 			(mapcar
-				#'(lambda (column)
-					(length column))
-				row)
-		selected-max-lengths
-			(get-selected-max-number-list
-				column-lengths
-				lengths))
+				#'length
+				column)
+		max-column-length (apply #'max column-lengths))
 	(cond
-		((cdr rows)
-			(get-max-column-lengths (cdr rows) selected-max-lengths))
-		(t selected-max-lengths)))
+		((cdr columns)
+			(cons max-column-length (get-max-column-lengths (cdr columns))))
+		(t nil)))

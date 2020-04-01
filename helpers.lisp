@@ -22,6 +22,12 @@
 				(+ original-index (length desired))))
 		(t str)))
 
+(defun transpose-table (table)
+	(apply
+		#'mapcar
+		(lambda (&rest lst) lst)
+		table))
+
 (defun get-selected-max-number-list (list1 list2)
 	(cond
 		((and list1 list2)

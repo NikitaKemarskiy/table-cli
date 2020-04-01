@@ -40,10 +40,8 @@
 				;; Table data (list of rows)
 				table-data (read-file-by-lines input-stream)
 				;; Table parsed (list of rows, rows are lists of cells)
-				table-parsed (parse-table table-data table-name)
-				#| ;; Table resulted
-				table-result (select table-parsed) |#)
+				table-parsed (parse-table table-data table-name))
 			(print table-parsed)
-			#| (pretty-table-print table) |#)
+			#| (pretty-table-print table-parsed) |#)
 		((string= command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

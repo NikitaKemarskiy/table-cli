@@ -21,11 +21,42 @@
 
 (defun pretty-table-print (table-parsed)
 "Pretty table output to stdout."
-	(setq column-lengths
-		(mapcar
-			#'car
-			table-parsed))
-	(apply
+	(setq
+		column-lengths
+			(mapcar
+				#'car
+				table-parsed)
+		table-parsed-recursive
+			(mapcar
+				#'(lambda(column)
+					(setq
+						column-length (car column)
+						column-values (cdr column))
+					(format t
+						(concatenate 'string
+							"~"
+							(write-to-string (+ column-length 1))
+							"A")
+						(car column-values))
+					(cond
+						((cdr column-values)
+							(cons
+								column-length
+								(cdr column-values)))
+						(t nil)))
+				table-parsed))
+		(terpri)
+		(cond
+			((reduce
+				#'(lambda (item1 item2)
+					(or item1 item2))
+				table-parsed-recursive)
+				(pretty-table-print table-parsed-recursive))
+			(t nil)))
+
+
+
+#| (apply
 		#'mapcar
 		(lambda(&rest columns)
 			(mapcar
@@ -33,7 +64,7 @@
 					(format t "~15A " val))
 				columns)
 			(terpri))
-		table-parsed)
+		table-parsed) |#
 	#| (mapcar
 		#'(lambda (row)
 			(mapcar
@@ -41,7 +72,7 @@
 					(format t "~15A " val))
 				row)
 			(format t "~C" #\linefeed))
-		(cdr table-parsed)) |#)
+		(cdr table-parsed)) |#
 
 (defun split-row (row separator quote-char &optional (result '()) (column-start-index 0))
 "Splits row into list of columns values

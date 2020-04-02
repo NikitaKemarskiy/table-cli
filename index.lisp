@@ -27,9 +27,3 @@
 	(execute-command command query))
 
 (main)
-
-#| (print
-	(apply
-		#'mapcar
-		#'length
-		'("str" "nick" "st" "nikita"))) |#

@@ -17,22 +17,31 @@
 			(calculate-columns-lengths
 				(transpose-table
 					table-parsed-by-rows)))
-	table-parsed
-	#| (cons
-		(get-first-row table-parsed)
-		(cdr table-parsed)) |#)
+	table-parsed)
 
 (defun pretty-table-print (table-parsed)
 "Pretty table output to stdout."
-	(setq first-row (car table-parsed))
-	(mapcar
+	(setq column-lengths
+		(mapcar
+			#'car
+			table-parsed))
+	(apply
+		#'mapcar
+		(lambda(&rest columns)
+			(mapcar
+				#'(lambda(val)
+					(format t "~15A " val))
+				columns)
+			(terpri))
+		table-parsed)
+	#| (mapcar
 		#'(lambda (row)
 			(mapcar
 				#'(lambda (val)
 					(format t "~15A " val))
 				row)
 			(format t "~C" #\linefeed))
-		(cdr table-parsed)))
+		(cdr table-parsed)) |#)
 
 (defun split-row (row separator quote-char &optional (result '()) (column-start-index 0))
 "Splits row into list of columns values
@@ -101,10 +110,10 @@ will be replaced with only one."
 
 (defun calculate-columns-lengths (table-parsed)
 	(setq
-		max-column-lengths (get-max-column-lengths table-parsed))
+		max-column-lengths
+			(get-max-column-lengths table-parsed))
 	(mapcar
-		#'(lambda (item lst)
-			(cons item lst))
+		#'cons
 		max-column-lengths
 		table-parsed))
 
@@ -112,7 +121,6 @@ will be replaced with only one."
 	(setq
 		column (car columns)
 		column-lengths
-
 			(mapcar
 				#'length
 				column)
@@ -120,4 +128,4 @@ will be replaced with only one."
 	(cond
 		((cdr columns)
 			(cons max-column-length (get-max-column-lengths (cdr columns))))
-		(t nil)))
+		(t (cons max-column-length nil))))

@@ -19,7 +19,7 @@
 					table-parsed-by-rows)))
 	table-parsed)
 
-(defun pretty-table-print (table-parsed)
+(defun pretty-table-print (table-parsed &optional (flag t))
 "Pretty table output to stdout."
 	(setq
 		column-lengths
@@ -34,9 +34,9 @@
 						column-values (cdr column))
 					(format t
 						(concatenate 'string
-							"~"
+							" ~"
 							(write-to-string (+ column-length 1))
-							"A")
+							"A|")
 						(car column-values))
 					(cond
 						((cdr column-values)
@@ -46,33 +46,14 @@
 						(t nil)))
 				table-parsed))
 		(terpri)
+		(cond (flag (print-separator-line column-lengths)))
 		(cond
 			((reduce
 				#'(lambda (item1 item2)
 					(or item1 item2))
 				table-parsed-recursive)
-				(pretty-table-print table-parsed-recursive))
+				(pretty-table-print table-parsed-recursive nil))
 			(t nil)))
-
-
-
-#| (apply
-		#'mapcar
-		(lambda(&rest columns)
-			(mapcar
-				#'(lambda(val)
-					(format t "~15A " val))
-				columns)
-			(terpri))
-		table-parsed) |#
-	#| (mapcar
-		#'(lambda (row)
-			(mapcar
-				#'(lambda (val)
-					(format t "~15A " val))
-				row)
-			(format t "~C" #\linefeed))
-		(cdr table-parsed)) |#
 
 (defun split-row (row separator quote-char &optional (result '()) (column-start-index 0))
 "Splits row into list of columns values
@@ -160,3 +141,11 @@ will be replaced with only one."
 		((cdr columns)
 			(cons max-column-length (get-max-column-lengths (cdr columns))))
 		(t (cons max-column-length nil))))
+
+(defun print-separator-line (column-lengths)
+	(mapcar
+		#'(lambda (column)
+			(format t "~v@{~A~:*~}" (+ column 2) #\-)
+			(format t "+"))
+		column-lengths)
+	(terpri))

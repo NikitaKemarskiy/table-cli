@@ -3,6 +3,7 @@
 (load "table.lisp")
 (load "queries.lisp")
 (load "helpers.lisp")
+(load "select.lisp")
 
 ;;; Tables pathes
 (setq table-base-path "tables/")
@@ -10,10 +11,10 @@
 ;;; Function that parses command name
 ;;; (takes substring before open parenthesis)
 (defun parse-command (query)
-	(setq index (search "(" query))
+	(setq index (search " " query))
 	(cond
-		((string= (substring query 0 index) "load") "load")
-		((string= (substring query 0 index) "exit") "exit")
+		((string-equal (substring query 0 index) "select") "select")
+		((string-equal (substring query 0 index) "exit") "exit")
 		(t (error "Command is not supported: ~S" query))))
 
 ;;; Function that parses parameter string
@@ -29,7 +30,18 @@
 ;;; Function that executes a command
 (defun execute-command (command query)
 	(cond
-		((string= command "load")
+		((string-equal command "select")
+			(setq
+				words
+					(split-str query)
+				columns
+					(get-select-columns words)
+				table-name
+					(get-select-table-name words))
+			(print columns)
+			(print table-name))
+
+		#| ((string-equal command "load")
 			(setq
 				;; Table name
 				table-name (get-params-string query)
@@ -41,6 +53,6 @@
 				table-data (read-file-by-lines input-stream)
 				;; Table parsed (list of rows, rows are lists of cells)
 				table-parsed (parse-table table-data table-name))
-			(pretty-table-print table-parsed))
-		((string= command "exit") (exit))
+			(pretty-table-print table-parsed)) |#
+		((string-equal command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

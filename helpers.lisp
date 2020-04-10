@@ -51,3 +51,25 @@
 					(cdr list1)
 					(cdr list2))))
 		(t nil)))
+
+(defun remove-empty-strings (lst)
+	(setq first-string (car lst))
+	(cond
+		((null first-string)
+			nil)
+		((string= "" first-string)
+			(remove-empty-strings
+				(cdr lst)))
+		(t
+			(cons
+				first-string
+				(remove-empty-strings (cdr lst))))))
+
+(defun split-str (string &optional (separator " ") (r nil))
+	(let ((n (position separator string
+		:from-end t
+		:test #'(lambda (x y)
+		(find y x :test #'string=)))))
+	(if n
+		(split-str (subseq string 0 n) separator (cons (subseq string (1+ n)) r))
+		(cons string r))))

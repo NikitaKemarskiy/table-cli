@@ -1,3 +1,20 @@
+;;; Tables pathes
+(setq table-base-path "tables/")
+
+;;; Get table by name
+(defun get-table (table-names)
+	(setq
+		;; ПОКА ТОЛЬКО ОДНА ТАБЛИЦА! БЕРУ ПЕРВОЕ ИМЯ ТАБЛИЦЫ ИЗ СПИСКА
+		table-name
+			(car table-names)
+		table-path
+			(concatenate 'string table-base-path table-name)
+		input-stream
+			(open table-path)
+		table-data
+			(read-file-by-lines input-stream))
+	(parse-table table-data table-name))
+
 ;;; Parse table
 (defun parse-table (table-data table-name)
 "Parse table with passed data and name."

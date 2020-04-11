@@ -1,3 +1,21 @@
+(defun get-words-between (words start &optional (end nil) (started nil))
+	(setq first-word (car words))
+	(cond
+		((null first-word)
+			nil)
+		((string-equal first-word start)
+			(get-words-between (cdr words) start end T))
+		((null started)
+			(get-words-between (cdr words) start end))
+		((and (not (null end)) (string-equal first-word end))
+			nil)
+		(t
+			(append
+				(remove-empty-strings
+					(split-str first-word ","))
+				(get-words-between
+					(cdr words) start end T)))))
+
 (defun ends-with-str (str1 str2)
 	(setq match (mismatch str2 str1 :from-end t))
 	(or (not match) (= 0 match)))
@@ -73,3 +91,24 @@
 	(if n
 		(split-str (subseq string 0 n) separator (cons (subseq string (1+ n)) r))
 		(cons string r))))
+
+(defun replace-item-with-several (lst item several)
+	(setq
+		first-item (car lst))
+	(cond
+		((null first-item)
+			nil)
+		((string-equal first-item item)
+			(append
+				several
+				(replace-item-with-several
+					(cdr lst)
+					item
+					several)))
+		(t
+			(cons
+				first-item
+				(replace-item-with-several
+					(cdr lst)
+					item
+					several)))))

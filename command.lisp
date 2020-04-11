@@ -5,9 +5,6 @@
 (load "helpers.lisp")
 (load "select.lisp")
 
-;;; Tables pathes
-(setq table-base-path "tables/")
-
 ;;; Function that parses command name
 ;;; (takes substring before open parenthesis)
 (defun parse-command (query)
@@ -16,16 +13,6 @@
 		((string-equal (substring query 0 index) "select") "select")
 		((string-equal (substring query 0 index) "exit") "exit")
 		(t (error "Command is not supported: ~S" query))))
-
-;;; Function that parses parameter string
-;;; (it doesn't parses separate parameters,
-;;; only returns the whole string)
-(defun get-params-string (query)
-	(setq
-		paramStartIndex (+ (search "(" query) 2)
-		paramEndIndex (- (search ")" query) 1)
-		param (substring query paramStartIndex paramEndIndex))
-	param)
 
 ;;; Function that executes a command
 (defun execute-command (command query)
@@ -37,22 +24,11 @@
 				columns
 					(get-select-columns words)
 				table-name
-					(get-select-table-name words))
-			(print columns)
-			(print table-name))
-
-		#| ((string-equal command "load")
-			(setq
-				;; Table name
-				table-name (get-params-string query)
-				;; Table path
-				table-path (concatenate 'string table-base-path table-name)
-				;; Table input stream
-				input-stream (open table-path)
-				;; Table data (list of rows)
-				table-data (read-file-by-lines input-stream)
-				;; Table parsed (list of rows, rows are lists of cells)
-				table-parsed (parse-table table-data table-name))
-			(pretty-table-print table-parsed)) |#
+					(get-select-table-name words)
+				table-parsed
+					(get-table table-name)
+				table-selected
+					(select-table table-parsed columns))
+			(pretty-table-print table-selected))
 		((string-equal command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

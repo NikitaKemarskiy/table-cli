@@ -112,3 +112,38 @@
 					(cdr lst)
 					item
 					several)))))
+
+;;; If list1 is greater or lists are equal - return T
+;;; Else if list2 is greater - return NIL
+(defun compare-two-lists (list1 list2)
+	(setq
+		first-item1 (car list1)
+		first-item2 (car list2))
+	(cond
+		((and
+			(null first-item1)
+			(null first-item2))
+			t)
+		((null first-item1)
+			nil)
+		((null first-item2)
+			t)
+		((compare= first-item1 first-item2)
+			(compare-two-lists
+				(cdr list1)
+				(cdr list2)))
+		(t (compare> first-item1 first-item2))))
+
+(defun compare= (item1 item2)
+	(cond
+		((numberp item1)
+			(= item1 item2))
+		((stringp item1)
+			(string= item1 item2))))
+
+(defun compare> (item1 item2)
+	(cond
+		((numberp item1)
+			(> item1 item2))
+		((stringp item1)
+			(string> item1 item2))))

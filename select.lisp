@@ -19,17 +19,28 @@
 				#'(lambda (column-parsed)
 					(car (cdr column-parsed)))
 				table-parsed)
-		columns-star-replaced
+		is-distinct
+			(string-equal
+				(car columns)
+				"distinct")
+		columns-processed
 			(replace-item-with-several
-				columns
+				(cond
+					(is-distinct (cdr columns))
+					(t columns))
 				"*"
-				table-columns-names))
-	(mapcar
-		#'(lambda (column)
-			(select-table-get-column
-				table-parsed
-				column))
-		columns-star-replaced))
+				table-columns-names)
+		table-selected
+			(mapcar
+				#'(lambda (column)
+					(select-table-get-column
+						table-parsed
+						column))
+				columns-processed))
+	(cond
+		(is-distinct
+			(distinct-table table-selected))
+		(t table-selected)))
 
 (defun select-table-get-column (table-parsed column)
 	(setq
@@ -41,3 +52,24 @@
 		((null (cdr table-parsed))
 			(error "Column wasn't found: ~S" column))
 		(t (select-table-get-column (cdr table-parsed) column))))
+
+(defun distinct-table (table-selected)
+	(setq
+		table-selected-values
+			(mapcar
+				#'(lambda (column)
+					(cdr (cdr column)))
+				table-selected)
+		table-selected-values-rows-sorted
+			(sort
+				(transpose-table table-selected-values)
+				#'compare-two-lists)
+		table-selected-values-sorted
+			(transpose-table table-selected-values-rows-sorted))
+	(mapcar
+		#'(lambda (column values)
+			(append
+				(list (car column) (car (cdr column)))
+				values))
+		table-selected
+		table-selected-values-sorted))

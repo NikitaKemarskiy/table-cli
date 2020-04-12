@@ -147,3 +147,18 @@
 			(> item1 item2))
 		((stringp item1)
 			(string> item1 item2))))
+
+(defun remove-item-duplicates (lst)
+	(setq
+		first-item (car lst)
+		remainder (cdr lst))
+	(cond
+		((null first-item) nil)
+		((null remainder) (cons first-item nil))
+		((equal first-item (car remainder))
+			(remove-item-duplicates remainder))
+		(t
+			(cons
+				first-item
+				(remove-item-duplicates
+					remainder)))))

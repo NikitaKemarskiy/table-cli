@@ -64,12 +64,14 @@
 			(sort
 				(transpose-table table-selected-values)
 				#'compare-two-lists)
-		table-selected-values-sorted
-			(transpose-table table-selected-values-rows-sorted))
+		table-selected-values-distinct
+			(remove-item-duplicates table-selected-values-rows-sorted)
+		table-selected-values-result
+			(transpose-table table-selected-values-distinct))
 	(mapcar
 		#'(lambda (column values)
 			(append
 				(list (car column) (car (cdr column)))
 				values))
 		table-selected
-		table-selected-values-sorted))
+		table-selected-values-result))

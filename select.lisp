@@ -9,10 +9,14 @@
 ;;; Function that returns table name
 ;;; specified in SELECT statement
 (defun get-select-table-name (words &optional (started nil))
-	(get-words-between words "from"))
+	(get-words-between words "from" "where"))
 
-(defun select-table (table-parsed columns)
-;replace-item-with-severa
+;;; Function that returns where clause
+;;; words
+(defun get-select-where-clause (words &optional (started nil))
+	(get-words-between words "where"))
+
+(defun select-table (table-parsed columns where-clause)
 	(setq
 		table-columns-names
 			(mapcar
@@ -35,20 +39,28 @@
 				#'(lambda (column)
 					(select-table-get-column
 						table-parsed
-						column))
+						column
+						where-clause))
 				columns-processed))
 	(cond
 		(is-distinct
 			(distinct-table table-selected))
 		(t table-selected)))
 
-(defun select-table-get-column (table-parsed column)
+(defun select-table-get-column (table-parsed column &optional (where-clause nil))
 	(setq
 		column-parsed (car table-parsed)
 		column-name (car (cdr column-parsed)))
 	(cond
 		((string-equal column-name column)
-			column-parsed)
+			(cond
+				((null where-clause)
+					column-parsed)
+				((string-equal (car where-clause) column)
+					(filter-column-where-clause
+						column-parsed
+						where-clause))
+				(t column-parsed)))
 		((null (cdr table-parsed))
 			(error "Column wasn't found: ~S" column))
 		(t (select-table-get-column (cdr table-parsed) column))))
@@ -75,3 +87,29 @@
 				values))
 		table-selected
 		table-selected-values-result))
+
+(defun filter-column-where-clause (column-parsed where-clause)
+	(setq
+		column-values
+			(cdr (cdr column-parsed))
+		first-value
+			(car column-values)
+		operator
+			(car (cdr where-clause))
+		compare-value
+			(car (cdr (cdr where-clause)))
+		compare-value-converted
+			(cond
+				((numberp first-value)
+					(parse-integer compare-value))
+				(t compare-value))
+		where-function
+			(cond
+				((string-equal operator "<=")
+					#'compare<=)
+				((string-equal operator "<>")
+					#'compare/=)))
+	(filter-by-predicate
+		column-values
+		#'(lambda (value)
+			(funcall where-function value compare-value-converted))))

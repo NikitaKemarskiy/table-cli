@@ -70,6 +70,22 @@
 					(cdr list2))))
 		(t nil)))
 
+(defun filter-by-predicate (lst predicate)
+	(setq first-item (car lst))
+	(cond
+		((null first-item)
+			nil)
+		((funcall predicate first-item)
+			(cons
+				first-item
+				(filter-by-predicate
+					(cdr lst)
+					predicate)))
+		(t
+			(filter-by-predicate
+				(cdr lst)
+				predicate))))
+
 (defun remove-empty-strings (lst)
 	(setq first-string (car lst))
 	(cond
@@ -140,6 +156,20 @@
 			(= item1 item2))
 		((stringp item1)
 			(string= item1 item2))))
+
+(defun compare/= (item1 item2)
+	(cond
+		((numberp item1)
+			(/= item1 item2))
+		((stringp item1)
+			(string/= item1 item2))))
+
+(defun compare<= (item1 item2)
+	(cond
+		((numberp item1)
+			(<= item1 item2))
+		((stringp item1)
+			(string<= item1 item2))))
 
 (defun compare> (item1 item2)
 	(cond

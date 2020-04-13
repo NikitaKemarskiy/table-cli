@@ -25,10 +25,15 @@
 					(get-select-columns words)
 				table-name
 					(get-select-table-name words)
+				where-clause
+					(get-select-where-clause words)
 				table-parsed
 					(get-table table-name)
 				table-selected
-					(select-table table-parsed columns))
+					(select-table
+						table-parsed
+						columns
+						where-clause))
 			(pretty-table-print table-selected))
 		((string-equal command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

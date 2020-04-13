@@ -19,7 +19,7 @@
 	(clear-input)
 
 	;; FOR TEST
-	(setq query "select distinct title, row, col, pos_x from map_zal-skl9.csv")
+	(setq query "select distinct row, col, pos_x from map_zal-skl9.csv where row <> 10")
 	;(setq query "load(\"mp-assistants.csv\")")
 	;(setq query "load(\"mp-posts_full.csv\")")
 	;(setq query "load(\"plenary_register_mps-skl9.tsv\")")

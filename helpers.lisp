@@ -162,3 +162,11 @@
 				first-item
 				(remove-item-duplicates
 					remainder)))))
+
+(defun numeric-string-p (str)
+	(ignore-errors (parse-integer str)))
+
+(defun parse-val (str)
+	(cond
+		((not (numeric-string-p str)) str)
+		(t (parse-integer str))))

@@ -36,42 +36,6 @@
 					table-parsed-by-rows)))
 	table-parsed)
 
-(defun pretty-table-print (table-parsed &optional (flag t))
-"Pretty table output to stdout."
-	(setq
-		column-lengths
-			(mapcar
-				#'car
-				table-parsed)
-		table-parsed-recursive
-			(mapcar
-				#'(lambda(column)
-					(setq
-						column-length (car column)
-						column-values (cdr column))
-					(format t
-						(concatenate 'string
-							" ~"
-							(write-to-string (+ column-length 1))
-							"A|")
-						(car column-values))
-					(cond
-						((cdr column-values)
-							(cons
-								column-length
-								(cdr column-values)))
-						(t nil)))
-				table-parsed))
-		(terpri)
-		(cond (flag (print-separator-line column-lengths)))
-		(cond
-			((reduce
-				#'(lambda (item1 item2)
-					(or item1 item2))
-				table-parsed-recursive)
-				(pretty-table-print table-parsed-recursive nil))
-			(t nil)))
-
 (defun split-row (row separator quote-char &optional (result '()) (column-start-index 0))
 "Splits row into list of columns values
 (we pass separator and quote char as params)."
@@ -81,9 +45,10 @@
 				((= column-start-index (length row)) nil)
 				(t (get-column-end-index row separator quote-char column-start-index)))
 		column
-			(parse-column
-				(subseq row column-start-index column-end-index)
-				quote-char)
+			(parse-val
+				(parse-column
+					(subseq row column-start-index column-end-index)
+					quote-char))
 		result-appended
 			(append
 				result
@@ -151,7 +116,12 @@ will be replaced with only one."
 		column (car columns)
 		column-lengths
 			(mapcar
-				#'length
+				#'(lambda (col)
+					(cond
+						((numberp col)
+							(length (write-to-string col)))
+						((stringp col)
+							(length col))))
 				column)
 		max-column-length (apply #'max column-lengths))
 	(cond
@@ -166,3 +136,39 @@ will be replaced with only one."
 			(format t "+"))
 		column-lengths)
 	(terpri))
+
+(defun pretty-table-print (table-parsed &optional (flag t))
+"Pretty table output to stdout."
+	(setq
+		column-lengths
+			(mapcar
+				#'car
+				table-parsed)
+		table-parsed-recursive
+			(mapcar
+				#'(lambda(column)
+					(setq
+						column-length (car column)
+						column-values (cdr column))
+					(format t
+						(concatenate 'string
+							" ~"
+							(write-to-string (+ column-length 1))
+							"A|")
+						(car column-values))
+					(cond
+						((cdr column-values)
+							(cons
+								column-length
+								(cdr column-values)))
+						(t nil)))
+				table-parsed))
+		(terpri)
+		(cond (flag (print-separator-line column-lengths)))
+		(cond
+			((reduce
+				#'(lambda (item1 item2)
+					(or item1 item2))
+				table-parsed-recursive)
+				(pretty-table-print table-parsed-recursive nil))
+			(t nil)))

@@ -15,18 +15,19 @@
 	(princ (concatenate 'string username "@" hostname "$: "))
 
 	;; Read table index
-	(setq query (read-line))
-	(clear-input)
+	#| (setq query (read-line))
+	(clear-input) |#
 
 	;; FOR TEST
-	(setq query "select distinct row, col, pos_x from map_zal-skl9.csv where row <> 10")
+	(setq query "select row, row, col, col, pos_x from map_zal-skl9.csv where row <> 10 order by row asc")
 	;(setq query "load(\"mp-assistants.csv\")")
 	;(setq query "load(\"mp-posts_full.csv\")")
 	;(setq query "load(\"plenary_register_mps-skl9.tsv\")")
-	
+
 	;; Parse user command
 	(setq command (parse-command query))
 	;; Execute user's command
 	(execute-command command query))
-
 (main)
+
+;select title, id_mp, id_fr from map_zal-skl9.csv where id_fr<>5

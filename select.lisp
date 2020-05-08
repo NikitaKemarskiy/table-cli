@@ -14,9 +14,14 @@
 ;;; Function that returns where clause
 ;;; words
 (defun get-select-where-clause (words &optional (started nil))
-	(get-words-between words "where"))
+	(get-words-between words "where" "order"))
 
-(defun select-table (table-parsed columns where-clause)
+;;; Function that returns order by
+;;; clause columns
+(defun get-select-order-by-clause (words &optional (started nil))
+	(cdr (get-words-between words "order")))
+
+(defun select-table (table-parsed columns where-clause order-by-clause)
 	(setq
 		table-columns-names
 			(mapcar
@@ -41,11 +46,21 @@
 						table-parsed
 						column
 						where-clause))
-				columns-processed))
-	(cond
-		(is-distinct
-			(distinct-table table-selected))
-		(t table-selected)))
+				columns-processed)
+		table-distincted
+			(cond
+				(is-distinct
+					(distinct-table table-selected))
+				(t table-selected))
+		table-ordered
+			(cond
+				((null order-by-clause)
+					table-distincted)
+				(t
+					(order-table
+						table-distincted
+						order-by-clause))))
+	table-ordered)
 
 (defun select-table-get-column (table-parsed column &optional (where-clause nil))
 	(setq
@@ -88,6 +103,46 @@
 		table-selected
 		table-selected-values-result))
 
+(defun order-table (table-selected order-by-clause)
+	(setq
+		order-by-column
+			(car order-by-clause)
+		order-by-order
+			(car (cdr order-by-clause)))
+	(setf
+		(symbol-function 'order-by-function)
+			(cond
+				((string= order-by-order "desc")
+					#'compare>)
+				(t #'compare<)))
+	(setq
+		order-by-column-index
+			(get-column-index-by-name
+				table-selected
+				(car order-by-clause))
+		table-selected-values
+			(mapcar
+				#'(lambda (column)
+					(cdr (cdr column)))
+				table-selected)
+		table-selected-values-rows-sorted
+			(sort
+				(transpose-table table-selected-values)
+				#'(lambda (list1 list2)
+					(setq
+						item1 (nth order-by-column-index list1)
+						item2 (nth order-by-column-index list2))
+					(order-by-function item1 item2)))
+		table-selected-values-result
+			(transpose-table table-selected-values-rows-sorted))
+	(mapcar
+		#'(lambda (column values)
+			(append
+				(list (car column) (car (cdr column)))
+				values))
+		table-selected
+		table-selected-values-result))
+
 (defun filter-column-where-clause (column-parsed where-clause)
 	(setq
 		column-values
@@ -108,8 +163,14 @@
 				((string-equal operator "<=")
 					#'compare<=)
 				((string-equal operator "<>")
-					#'compare/=)))
-	(filter-by-predicate
-		column-values
-		#'(lambda (value)
-			(funcall where-function value compare-value-converted))))
+					#'compare/=))
+		filtered-values
+			(filter-by-predicate
+				column-values
+				#'(lambda (value)
+					(funcall where-function value compare-value-converted))))
+	(cons
+		(car column-parsed)
+		(cons
+			(car (cdr column-parsed))
+			filtered-values)))

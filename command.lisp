@@ -27,13 +27,16 @@
 					(get-select-table-name words)
 				where-clause
 					(get-select-where-clause words)
+				order-by-clause
+					(get-select-order-by-clause words)
 				table-parsed
 					(get-table table-name)
 				table-selected
 					(select-table
 						table-parsed
 						columns
-						where-clause))
+						where-clause
+						order-by-clause))
 			(pretty-table-print table-selected))
 		((string-equal command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

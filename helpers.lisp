@@ -86,6 +86,41 @@
 				(cdr lst)
 				predicate))))
 
+(defun filter-rows-by-predicate (rows index predicate)
+	(setq
+		row (car rows)
+		value (nth index row)
+		remainder (cdr rows)
+		passes-filter (funcall predicate value))
+	#| (setq
+		filtered-rows-remainder
+			(cond
+				((null remainder) nil)
+				(t (filter-rows-by-predicate
+					remainder
+					index
+					predicate)))) |#
+	;(print value)
+	;(print passes-filter)
+	;(print filtered-rows-remainder)
+	;(print "-----------------")
+	(cond
+		(passes-filter
+			(cons
+				row
+				(cond
+					((null remainder) nil)
+					(t (filter-rows-by-predicate
+						remainder
+						index
+						predicate)))))
+		(t (cond
+			((null remainder) nil)
+			(t (filter-rows-by-predicate
+				remainder
+				index
+				predicate))))))
+
 (defun remove-empty-strings (lst)
 	(setq first-string (car lst))
 	(cond

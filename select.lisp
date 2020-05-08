@@ -44,14 +44,18 @@
 				#'(lambda (column)
 					(select-table-get-column
 						table-parsed
-						column
-						where-clause))
+						column))
 				columns-processed)
+		table-filtered
+			(cond
+				((null where-clause)
+					table-selected)
+				(t (filter-table table-selected where-clause)))
 		table-distincted
 			(cond
 				(is-distinct
-					(distinct-table table-selected))
-				(t table-selected))
+					(distinct-table table-filtered))
+				(t table-filtered))
 		table-ordered
 			(cond
 				((null order-by-clause)
@@ -62,20 +66,13 @@
 						order-by-clause))))
 	table-ordered)
 
-(defun select-table-get-column (table-parsed column &optional (where-clause nil))
+(defun select-table-get-column (table-parsed column)
 	(setq
 		column-parsed (car table-parsed)
 		column-name (car (cdr column-parsed)))
 	(cond
 		((string-equal column-name column)
-			(cond
-				((null where-clause)
-					column-parsed)
-				((string-equal (car where-clause) column)
-					(filter-column-where-clause
-						column-parsed
-						where-clause))
-				(t column-parsed)))
+			column-parsed)
 		((null (cdr table-parsed))
 			(error "Column wasn't found: ~S" column))
 		(t (select-table-get-column (cdr table-parsed) column))))
@@ -143,34 +140,77 @@
 		table-selected
 		table-selected-values-result))
 
-(defun filter-column-where-clause (column-parsed where-clause)
+(defun filter-table (table-selected where-clause &optional (prev-table nil))
 	(setq
-		column-values
-			(cdr (cdr column-parsed))
-		first-value
-			(car column-values)
+		table-selected-values
+			(mapcar
+				#'(lambda (column)
+					(cdr (cdr column)))
+				table-selected)
+		table-selected-values-rows
+			(transpose-table table-selected-values)
+		not-clause
+			(string= (car where-clause) "not")
+		where-clause-tokens
+			(cond
+				(not-clause (cdr where-clause))
+				(t where-clause))
+		column-name
+			(car where-clause-tokens)
 		operator
-			(car (cdr where-clause))
+			(car (cdr where-clause-tokens))
 		compare-value
-			(car (cdr (cdr where-clause)))
+			(car (cdr (cdr where-clause-tokens)))
+		column-index
+			(get-column-index-by-name table-selected column-name)
+		first-value
+			(nth column-index (car table-selected-values-rows))
 		compare-value-converted
 			(cond
 				((numberp first-value)
 					(parse-integer compare-value))
 				(t compare-value))
+		where-clause-remainder
+			(cdr (cdr (cdr where-clause-tokens)))
 		where-function
 			(cond
 				((string-equal operator "<=")
-					#'compare<=)
+					#'(lambda (item1 item2)
+						(cond
+							(not-clause (not (compare<= item1 item2)))
+							(t (compare<= item1 item2)))))
 				((string-equal operator "<>")
-					#'compare/=))
-		filtered-values
-			(filter-by-predicate
-				column-values
+					#'(lambda (item1 item2)
+						(cond
+							(not-clause (not (compare/= item1 item2)))
+							(t (compare/= item1 item2)))))))
+	(setq
+		filtered-values-rows
+			(filter-rows-by-predicate
+				table-selected-values-rows
+				column-index
 				#'(lambda (value)
 					(funcall where-function value compare-value-converted))))
-	(cons
-		(car column-parsed)
-		(cons
-			(car (cdr column-parsed))
-			filtered-values)))
+
+	(setq
+		filtered-values
+			(transpose-table filtered-values-rows)
+		table-filtered
+			(mapcar
+				#'(lambda (column values)
+					(append
+						(list (car column) (car (cdr column)))
+						values))
+				table-selected
+				filtered-values))
+	(cond
+		((null where-clause-remainder) table-filtered)
+		((string= (car where-clause-remainder) "and")
+			(filter-table
+				table-filtered
+				(cdr where-clause-remainder)))
+		((string= (car where-clause-remainder) "or")
+			(filter-table
+				table-filtered
+				(cdr where-clause-remainder)
+				table-selected))))

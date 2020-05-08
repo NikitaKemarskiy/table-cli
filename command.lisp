@@ -37,6 +37,7 @@
 						columns
 						where-clause
 						order-by-clause))
+			;(print table-selected)
 			(pretty-table-print table-selected))
 		((string-equal command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

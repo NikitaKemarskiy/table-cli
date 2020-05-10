@@ -4,7 +4,6 @@
 ;;; Get table by name
 (defun get-table (table-names)
 	(setq
-		;; ПОКА ТОЛЬКО ОДНА ТАБЛИЦА! БЕРУ ПЕРВОЕ ИМЯ ТАБЛИЦЫ ИЗ СПИСКА
 		table-name
 			(car table-names)
 		table-path

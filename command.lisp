@@ -3,7 +3,7 @@
 (load "table.lisp")
 (load "queries.lisp")
 (load "helpers.lisp")
-(load "select.lisp")
+(load "select/select.lisp")
 
 ;;; Function that parses command name
 ;;; (takes substring before open parenthesis)
@@ -37,7 +37,6 @@
 						columns
 						where-clause
 						order-by-clause))
-			;(print table-selected)
 			(pretty-table-print table-selected))
 		((string-equal command "exit") (exit))
 		(t (error "Command is not supported: ~S" query))))

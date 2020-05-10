@@ -15,11 +15,12 @@
 	(princ (concatenate 'string username "@" hostname "$: "))
 
 	;; Read table index
-	(setq query (read-line))
-	(clear-input)
+	#| (setq query (read-line))
+	(clear-input) |#
 
 	;; FOR TEST
 	;(setq query "select row, col, col, pos_x from map_zal-skl9.csv where col <= 15 and not row <> 10 order by pos_x desc")
+	(setq query "select * from mp-assistants.csv outer join map_zal-skl9.csv on row")
 	;(setq query "select avg(row), max(col) from map_zal-skl9.csv")
 
 	;; Parse user command

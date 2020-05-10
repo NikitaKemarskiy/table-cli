@@ -10,7 +10,7 @@
 
 ;;; Function that returns table name
 ;;; specified in SELECT statement
-(defun get-select-table-name (words &optional (started nil))
+(defun get-select-from-clause (words &optional (started nil))
 	(get-words-between words "from" "where"))
 
 ;;; Function that returns where clause

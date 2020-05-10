@@ -250,3 +250,8 @@
 	(cond
 		((not (numeric-string-p str)) str)
 		(t (parse-integer str))))
+
+(defun get-nil-list (len)
+	(cond
+		((= len 0) nil)
+		(t (cons nil (get-nil-list (- len 1))))))

@@ -92,18 +92,6 @@
 		value (nth index row)
 		remainder (cdr rows)
 		passes-filter (funcall predicate value))
-	#| (setq
-		filtered-rows-remainder
-			(cond
-				((null remainder) nil)
-				(t (filter-rows-by-predicate
-					remainder
-					index
-					predicate)))) |#
-	;(print value)
-	;(print passes-filter)
-	;(print filtered-rows-remainder)
-	;(print "-----------------")
 	(cond
 		(passes-filter
 			(cons
@@ -175,7 +163,7 @@
 	(cond
 		((string= current-column-name column-name)
 			index)
-		((nil columns-remaining) nil)
+		((null columns-remaining) nil)
 		(t (get-column-index-by-name columns-remaining column-name (+ index 1)))))
 
 

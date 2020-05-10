@@ -184,6 +184,7 @@
 						(cond
 							(not-clause (not (compare/= item1 item2)))
 							(t (compare/= item1 item2)))))))
+
 	(setq
 		filtered-values-rows
 			(filter-rows-by-predicate
